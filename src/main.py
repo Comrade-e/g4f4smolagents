@@ -1,23 +1,23 @@
-import warnings
 from typing import Optional, List, Dict
 
 from smolagents import ApiModel, Tool, ChatMessage
 
-
+#g4f API class
 class G4fModel(ApiModel):
 
     def __init__(
         self,
         model_id: Optional[str] = None,
-        api_base=None,
-        api_key=None,
         custom_role_conversions: dict[str, str] | None = None,
         flatten_messages_as_text: bool | None = None,
+        api_base=None,
+        provider=None,
         **kwargs,
     ):
 
         self.model_id = model_id
         self.api_base = api_base
+        self.provider = provider
         super().__init__(
             model_id=model_id,
             custom_role_conversions=custom_role_conversions,
@@ -34,7 +34,7 @@ class G4fModel(ApiModel):
                 "Please install 'g4f' extra to use g4f4smolagents: `pip install g4f"
             ) from e
 
-        return g4f.client.Client()
+        return g4f.client.Client(provider=self.provider)
 
     def __call__(
         self,
@@ -56,7 +56,7 @@ class G4fModel(ApiModel):
             **kwargs,
         )
 
-        response = self.client.chat.completions.create(**completion_kwargs)
+        response = self.client.chat.completions.create(**completion_kwargs) # responce from g4f
 
         self.last_input_token_count = response.usage.prompt_tokens
         self.last_output_token_count = response.usage.completion_tokens
